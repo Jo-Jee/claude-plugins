@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "george-tools",
+  "description": "Jo-Jee's personal Claude Code plugins.",
+  "owner": {
+    "name": "Jo-Jee",
+    "email": "jojee.dev@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "english-coach",
+      "source": "./english-coach",
+      "category": "productivity",
+      "description": "Reviews the English in every prompt — itemized corrections, a native rewrite, compliments for clean prose, plus a running mistake log with a stats command."
+    }
+  ]
+}

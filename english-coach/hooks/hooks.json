@@ -1,0 +1,17 @@
+{
+  "description": "Reviews the English of every user prompt via a Sonnet call.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/check.sh",
+            "timeout": 60,
+            "statusMessage": "Checking English..."
+          }
+        ]
+      }
+    ]
+  }
+}
