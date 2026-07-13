@@ -99,6 +99,51 @@ STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$NEWROOT" ba
 assert_equals "~/my/other.sh" "$(jq -r '.statusLine.command' "$SET")" "sync: foreign untouched"
 rm -rf "$TMP"
 
+echo "== setup =="
+S="$ROOT/scripts/setup.sh"
+
+# install onto empty
+TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
+printf '{}\n' > "$SET"
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" install >/dev/null
+assert_equals 'STATUSLINE_ICONS=nerd "/opt/plugins/statusline/scripts/statusline.sh"' \
+  "$(jq -r '.statusLine.command' "$SET")" "setup: install onto empty"
+st=$(STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" status)
+assert_contains "state: ours" "$st" "setup: status reports ours"
+rm -rf "$TMP"
+
+# install refuses foreign without --force
+TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
+jq -n '{statusLine:{type:"command",command:"~/foreign.sh"}}' > "$SET"
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" install >/dev/null 2>&1
+rc=$?
+assert_equals "2" "$rc" "setup: install refuses foreign (exit 2)"
+assert_equals "~/foreign.sh" "$(jq -r '.statusLine.command' "$SET")" "setup: foreign untouched without force"
+rm -rf "$TMP"
+
+# install --force replaces foreign and backs up
+TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
+jq -n '{statusLine:{type:"command",command:"~/foreign.sh"}}' > "$SET"
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" install --force >/dev/null
+assert_contains "statusline.sh" "$(jq -r '.statusLine.command' "$SET")" "setup: --force replaced foreign"
+assert_equals "~/foreign.sh" "$(jq -r '.statusLine.command' "$SET.bak")" "setup: --force backed up original"
+rm -rf "$TMP"
+
+# install --ascii records ascii
+TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
+printf '{}\n' > "$SET"
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" install --ascii >/dev/null
+assert_contains "STATUSLINE_ICONS=ascii" "$(jq -r '.statusLine.command' "$SET")" "setup: --ascii selected"
+rm -rf "$TMP"
+
+# uninstall removes ours
+TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
+printf '{}\n' > "$SET"
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" install >/dev/null
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" uninstall >/dev/null
+assert_equals "" "$(jq -r '.statusLine.command // empty' "$SET")" "setup: uninstall removed ours"
+rm -rf "$TMP"
+
 echo
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]
