@@ -1,24 +1,22 @@
 #!/usr/bin/env bash
 # /statusline-setup and /statusline-uninstall helper.
-# Usage: setup.sh <status|install|uninstall> [--ascii|--nerd] [--force]
+# Usage: setup.sh <status|install|uninstall> [--force]
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=/dev/null
 . "$DIR/lib-settings.sh"
 command -v jq >/dev/null 2>&1 || { echo "ERROR: jq not found — install jq first."; exit 1; }
 
-ICONS="nerd"; force=""; cmd="status"
+force=""; cmd="status"
 for a in "$@"; do
   case "$a" in
-    --ascii) ICONS="ascii" ;;
-    --nerd)  ICONS="nerd" ;;
     --force) force="1" ;;
     status|install|uninstall) cmd="$a" ;;
     *) : ;;
   esac
 done
 
-computed=$(build_command "$(plugin_root)" "$ICONS")
+computed=$(build_command "$(plugin_root)")
 current=$(read_statusline_command)
 owned=$(owned_get_command)
 
@@ -32,12 +30,12 @@ case "$cmd" in
     ;;
   install)
     if [ -z "$current" ] || is_ours; then
-      write_statusline_command "$computed"; owned_write "$computed" "$ICONS"
+      write_statusline_command "$computed"; owned_write "$computed"
       echo "installed: $computed"
       echo "Takes effect in new sessions."
     elif [ -n "$force" ]; then
       backup_settings
-      write_statusline_command "$computed"; owned_write "$computed" "$ICONS"
+      write_statusline_command "$computed"; owned_write "$computed"
       echo "replaced foreign statusline (backup: $(settings_path).bak)"
       echo "installed: $computed"
     else

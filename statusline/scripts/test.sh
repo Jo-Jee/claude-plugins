@@ -13,7 +13,7 @@ REND="$ROOT/scripts/statusline.sh"
 FULL='{"cwd":"'"$HOME"'/proj","model":{"display_name":"Opus 4.8"},"context_window":{"used_percentage":42},"rate_limits":{"five_hour":{"used_percentage":30,"resets_at":0}},"effort":{"level":"high"}}'
 
 echo "== renderer =="
-out=$(printf '%s' "$FULL" | STATUSLINE_ICONS=nerd sh "$REND")
+out=$(printf '%s' "$FULL" | sh "$REND")
 assert_contains "~/proj" "$out" "full: cwd shown with ~"
 assert_contains "Opus 4.8" "$out" "full: model shown"
 assert_contains "42%" "$out" "full: context percent shown"
@@ -21,16 +21,14 @@ assert_contains "5h 30%" "$out" "full: rate-limit percent shown"
 assert_contains "high" "$out" "full: effort shown"
 
 NOGIT='{"cwd":"/tmp/nowhere-xyz","model":{"display_name":"Haiku"}}'
-out=$(printf '%s' "$NOGIT" | STATUSLINE_ICONS=nerd sh "$REND")
+out=$(printf '%s' "$NOGIT" | sh "$REND")
 assert_contains "Haiku" "$out" "no-git: model still shown"
 
-out=$(printf '%s' "$FULL" | STATUSLINE_ICONS=ascii sh "$REND")
-assert_contains "ctx" "$out" "ascii: context label"
-
-# Branch label only renders inside a real git repo, so use the repo root as cwd.
+# Branch renders only inside a real git repo, so use the repo root as cwd.
 GITFIX='{"cwd":"'"$ROOT"'","model":{"display_name":"Opus 4.8"}}'
-out=$(printf '%s' "$GITFIX" | STATUSLINE_ICONS=ascii sh "$REND")
-assert_contains "git" "$out" "ascii: branch label"
+out=$(printf '%s' "$GITFIX" | sh "$REND")
+BR=$(git -C "$ROOT" symbolic-ref --short HEAD 2>/dev/null || git -C "$ROOT" rev-parse --short HEAD)
+assert_contains "$BR" "$out" "git: branch name shown"
 
 out=$(PATH= /bin/sh "$REND" </dev/null)
 assert_contains "jq not found" "$out" "no-jq: prints hint"
@@ -43,16 +41,15 @@ export STATUSLINE_ROOT="/opt/plugins/statusline"
 # shellcheck source=/dev/null
 . "$ROOT/scripts/lib-settings.sh"
 
-assert_equals 'STATUSLINE_ICONS=nerd "/opt/plugins/statusline/scripts/statusline.sh"' \
-  "$(build_command "$(plugin_root)" nerd)" "build_command formats nerd"
+assert_equals '"/opt/plugins/statusline/scripts/statusline.sh"' \
+  "$(build_command "$(plugin_root)")" "build_command formats path"
 
 write_statusline_command 'CMD_A'
 assert_equals "CMD_A" "$(read_statusline_command)" "write/read roundtrip"
 assert_equals "command" "$(jq -r '.statusLine.type' "$STATUSLINE_SETTINGS")" "write sets type=command"
 
-owned_write "CMD_A" "ascii"
+owned_write "CMD_A"
 assert_equals "CMD_A" "$(owned_get_command)" "owned command recorded"
-assert_equals "ascii" "$(owned_get_icons)" "owned icons recorded"
 
 backup_settings
 remove_statusline
@@ -61,7 +58,7 @@ restore_settings_backup
 assert_equals "CMD_A" "$(read_statusline_command)" "restore brings back entry"
 
 owned_clear
-assert_equals "nerd" "$(owned_get_icons)" "owned_get_icons defaults to nerd after clear"
+assert_equals "" "$(owned_get_command)" "owned_clear removes record"
 rm -rf "$TMP"
 unset STATUSLINE_SETTINGS STATUSLINE_DATA STATUSLINE_ROOT
 
@@ -69,8 +66,8 @@ echo "== sync =="
 run_sync() {
   TMP=$(mktemp -d)
   SET="$TMP/settings.json"; DATA="$TMP/data"; NEWROOT="/opt/plugins/statusline-v2"
-  NEWCMD='STATUSLINE_ICONS=nerd "/opt/plugins/statusline-v2/scripts/statusline.sh"'
-  OLDCMD='STATUSLINE_ICONS=nerd "/opt/plugins/statusline-v1/scripts/statusline.sh"'
+  NEWCMD='"/opt/plugins/statusline-v2/scripts/statusline.sh"'
+  OLDCMD='"/opt/plugins/statusline-v1/scripts/statusline.sh"'
 }
 
 # Case A: no statusLine present -> stays empty
@@ -84,7 +81,7 @@ rm -rf "$TMP"
 run_sync
 mkdir -p "$DATA"
 jq -n --arg c "$OLDCMD" '{statusLine:{type:"command",command:$c}}' > "$SET"
-jq -n --arg c "$OLDCMD" '{command:$c, icons:"nerd"}' > "$DATA/owned.json"
+jq -n --arg c "$OLDCMD" '{command:$c}' > "$DATA/owned.json"
 STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$NEWROOT" bash "$ROOT/scripts/sync.sh"
 assert_equals "$NEWCMD" "$(jq -r '.statusLine.command' "$SET")" "sync: stale ours re-pinned"
 assert_equals "$NEWCMD" "$(jq -r '.command' "$DATA/owned.json")" "sync: owned.json updated"
@@ -94,7 +91,7 @@ rm -rf "$TMP"
 run_sync
 mkdir -p "$DATA"
 jq -n '{statusLine:{type:"command",command:"~/my/other.sh"}}' > "$SET"
-jq -n --arg c "$OLDCMD" '{command:$c, icons:"nerd"}' > "$DATA/owned.json"
+jq -n --arg c "$OLDCMD" '{command:$c}' > "$DATA/owned.json"
 STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$NEWROOT" bash "$ROOT/scripts/sync.sh"
 assert_equals "~/my/other.sh" "$(jq -r '.statusLine.command' "$SET")" "sync: foreign untouched"
 rm -rf "$TMP"
@@ -106,7 +103,7 @@ S="$ROOT/scripts/setup.sh"
 TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
 printf '{}\n' > "$SET"
 STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" install >/dev/null
-assert_equals 'STATUSLINE_ICONS=nerd "/opt/plugins/statusline/scripts/statusline.sh"' \
+assert_equals '"/opt/plugins/statusline/scripts/statusline.sh"' \
   "$(jq -r '.statusLine.command' "$SET")" "setup: install onto empty"
 st=$(STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" status)
 assert_contains "state: ours" "$st" "setup: status reports ours"
@@ -127,13 +124,6 @@ jq -n '{statusLine:{type:"command",command:"~/foreign.sh"}}' > "$SET"
 STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" install --force >/dev/null
 assert_contains "statusline.sh" "$(jq -r '.statusLine.command' "$SET")" "setup: --force replaced foreign"
 assert_equals "~/foreign.sh" "$(jq -r '.statusLine.command' "$SET.bak")" "setup: --force backed up original"
-rm -rf "$TMP"
-
-# install --ascii records ascii
-TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
-printf '{}\n' > "$SET"
-STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$RT" bash "$S" install --ascii >/dev/null
-assert_contains "STATUSLINE_ICONS=ascii" "$(jq -r '.statusLine.command' "$SET")" "setup: --ascii selected"
 rm -rf "$TMP"
 
 # uninstall removes ours

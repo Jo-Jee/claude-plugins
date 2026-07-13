@@ -8,8 +8,8 @@ owned_path()    { printf '%s' "${STATUSLINE_DATA:-$CLAUDE_PLUGIN_DATA}/owned.jso
 plugin_root()   { printf '%s' "${STATUSLINE_ROOT:-$CLAUDE_PLUGIN_ROOT}"; }
 
 build_command() {
-  # $1 root, $2 icons(nerd|ascii)
-  printf 'STATUSLINE_ICONS=%s "%s/scripts/statusline.sh"' "${2:-nerd}" "$1"
+  # $1 root
+  printf '"%s/scripts/statusline.sh"' "$1"
 }
 
 read_statusline_command() {
@@ -51,17 +51,10 @@ owned_get_command() {
   jq -r '.command // empty' "$_op" 2>/dev/null
 }
 
-owned_get_icons() {
-  _op=$(owned_path)
-  if [ ! -f "$_op" ]; then printf 'nerd'; return 0; fi
-  _i=$(jq -r '.icons // empty' "$_op" 2>/dev/null)
-  if [ -n "$_i" ]; then printf '%s' "$_i"; else printf 'nerd'; fi
-}
-
 owned_write() {
   _op=$(owned_path)
   mkdir -p "$(dirname "$_op")"
-  jq -n --arg cmd "$1" --arg icons "$2" '{command:$cmd, icons:$icons}' > "$_op"
+  jq -n --arg cmd "$1" '{command:$cmd}' > "$_op"
 }
 
 owned_clear() {
