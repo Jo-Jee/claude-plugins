@@ -1,6 +1,6 @@
 {
   "name": "english-coach",
   "description": "Reviews the English in every prompt — itemized corrections, a native rewrite, compliments for clean prose, plus a running mistake log with a stats command.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": { "name": "Jo-Jee", "email": "jojee.dev@gmail.com" }
 }

@@ -9,10 +9,22 @@ Reviews the English in every prompt you submit. On each message it:
 - lists itemized corrections (`[category] original → corrected — reason`),
 - adds a full **native rewrite** when the phrasing is unnatural,
 - compliments prose that already reads native,
-- logs every mistake to `~/.claude/english-mistakes.jsonl`, and
-- exposes `/english-coach-stats` to review your history and trends.
+- logs every mistake to `~/.claude/english-mistakes.jsonl`,
+- exposes `/english-coach:stats` to review your history and trends, and
+- adds `/english-coach:train` — an interactive tutoring session with **Emma**, a
+  consistent, human-feeling coach who remembers your past sessions and steers
+  conversation toward your weak spots. During a session the passive prompt-checker
+  pauses (auto-resumes after 2h as a safety net) so Emma owns the feedback.
 
 Skips slash commands, `!` bash escapes, and prompts containing fenced code blocks.
+
+### Training-mode memory
+Emma's memory lives in `~/.claude/english-coach/`:
+- `profile.md` — durable facts about you and Emma's running impression.
+- `sessions.jsonl` — one recap per session.
+
+She also reads and appends to `~/.claude/english-mistakes.jsonl`, so `/english-coach:stats`
+stays accurate.
 
 **Requires:** `jq` and a `claude` binary on `PATH`.
 
@@ -24,7 +36,7 @@ Skips slash commands, `!` bash escapes, and prompts containing fenced code block
 /reload-plugins
 ```
 
-Then check your stats any time with `/english-coach-stats` (or `/english-coach-stats recent 20`).
+Then check your stats any time with `/english-coach:stats` (or `/english-coach:stats recent 20`), or start a tutoring session with `/english-coach:train`.
 
 ### Configuration (optional)
 The scripts honor these env vars:
