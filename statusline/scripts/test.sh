@@ -65,6 +65,40 @@ assert_equals "nerd" "$(owned_get_icons)" "owned_get_icons defaults to nerd afte
 rm -rf "$TMP"
 unset STATUSLINE_SETTINGS STATUSLINE_DATA STATUSLINE_ROOT
 
+echo "== sync =="
+run_sync() {
+  TMP=$(mktemp -d)
+  SET="$TMP/settings.json"; DATA="$TMP/data"; NEWROOT="/opt/plugins/statusline-v2"
+  NEWCMD='STATUSLINE_ICONS=nerd "/opt/plugins/statusline-v2/scripts/statusline.sh"'
+  OLDCMD='STATUSLINE_ICONS=nerd "/opt/plugins/statusline-v1/scripts/statusline.sh"'
+}
+
+# Case A: no statusLine present -> stays empty
+run_sync
+printf '{}\n' > "$SET"
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$NEWROOT" bash "$ROOT/scripts/sync.sh"
+assert_equals "" "$(jq -r '.statusLine.command // empty' "$SET")" "sync: empty stays empty"
+rm -rf "$TMP"
+
+# Case B: ours but stale path -> re-pinned to new root
+run_sync
+mkdir -p "$DATA"
+jq -n --arg c "$OLDCMD" '{statusLine:{type:"command",command:$c}}' > "$SET"
+jq -n --arg c "$OLDCMD" '{command:$c, icons:"nerd"}' > "$DATA/owned.json"
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$NEWROOT" bash "$ROOT/scripts/sync.sh"
+assert_equals "$NEWCMD" "$(jq -r '.statusLine.command' "$SET")" "sync: stale ours re-pinned"
+assert_equals "$NEWCMD" "$(jq -r '.command' "$DATA/owned.json")" "sync: owned.json updated"
+rm -rf "$TMP"
+
+# Case C: foreign statusLine -> untouched
+run_sync
+mkdir -p "$DATA"
+jq -n '{statusLine:{type:"command",command:"~/my/other.sh"}}' > "$SET"
+jq -n --arg c "$OLDCMD" '{command:$c, icons:"nerd"}' > "$DATA/owned.json"
+STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" STATUSLINE_ROOT="$NEWROOT" bash "$ROOT/scripts/sync.sh"
+assert_equals "~/my/other.sh" "$(jq -r '.statusLine.command' "$SET")" "sync: foreign untouched"
+rm -rf "$TMP"
+
 echo
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]
