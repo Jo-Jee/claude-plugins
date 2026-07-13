@@ -1,4 +1,4 @@
-# JoJee-tools — Claude Code plugin marketplace
+# jojee-tools — Claude Code plugin marketplace
 
 Personal Claude Code plugins by Jo-Jee.
 
@@ -20,7 +20,7 @@ Skips slash commands, `!` bash escapes, and prompts containing fenced code block
 
 ```
 /plugin marketplace add Jo-Jee/claude-plugins
-/plugin install english-coach@JoJee-tools
+/plugin install english-coach@jojee-tools
 /reload-plugins
 ```
 
