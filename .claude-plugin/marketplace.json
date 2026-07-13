@@ -12,6 +12,12 @@
       "source": "./english-coach",
       "category": "productivity",
       "description": "Reviews the English in every prompt — itemized corrections, a native rewrite, compliments for clean prose, plus a running mistake log with a stats command."
+    },
+    {
+      "name": "statusline",
+      "source": "./statusline",
+      "category": "productivity",
+      "description": "A polished Claude Code statusline with context-window and 5h rate-limit bars, git/model/effort segments, Nerd Font icons + ASCII fallback. Installs via /statusline-setup."
     }
   ]
 }
