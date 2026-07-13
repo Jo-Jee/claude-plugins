@@ -15,6 +15,19 @@ if [ -n "${CHECK_ENGLISH_IN_PROGRESS:-}" ]; then
 fi
 export CHECK_ENGLISH_IN_PROGRESS=1
 
+# Training-mode pause: while a fresh session sentinel exists, stay silent so the
+# interactive coach (/english-coach:train) owns all feedback. A sentinel older than
+# 2h is treated as an abandoned session (forgotten goodbye) — remove it and resume.
+SENTINEL="${CHECK_ENGLISH_SENTINEL:-$HOME/.claude/english-coach/.session-active}"
+if [ -f "$SENTINEL" ]; then
+  started=$(cat "$SENTINEL" 2>/dev/null)
+  now=$(date +%s)
+  if printf '%s' "$started" | grep -Eq '^[0-9]+$' && [ $((now - started)) -ge 0 ] && [ $((now - started)) -lt 7200 ]; then
+    exit 0
+  fi
+  rm -f "$SENTINEL"
+fi
+
 input=$(cat)
 prompt=$(printf '%s' "$input" | jq -r '.prompt // empty')
 
