@@ -99,6 +99,19 @@ rm -rf "$TMP"
 echo "== setup =="
 S="$ROOT/scripts/setup.sh"
 
+# Regression: slash commands do NOT export CLAUDE_PLUGIN_ROOT/DATA into the shell.
+# With those and STATUSLINE_ROOT all unset, setup.sh must derive its own root from
+# the script location and must NOT crash under set -u (unbound variable).
+TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"
+printf '{}\n' > "$SET"
+env -u STATUSLINE_ROOT -u CLAUDE_PLUGIN_ROOT -u CLAUDE_PLUGIN_DATA \
+  STATUSLINE_SETTINGS="$SET" STATUSLINE_DATA="$DATA" bash "$S" install >/dev/null 2>&1
+rc=$?
+assert_equals "0" "$rc" "setup: no unbound-variable crash without plugin env vars"
+assert_contains "statusline/scripts/statusline.sh" "$(jq -r '.statusLine.command' "$SET")" \
+  "setup: derives plugin root from script location"
+rm -rf "$TMP"
+
 # install onto empty
 TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
 printf '{}\n' > "$SET"

@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
-# /statusline-setup and /statusline-uninstall helper.
+# /statusline:setup and /statusline:uninstall helper.
 # Usage: setup.sh <status|install|uninstall> [--force]
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
+# Derive the plugin root from this script's own location. Slash commands expand
+# ${CLAUDE_PLUGIN_ROOT} textually into the path but do NOT export it as an env
+# var, so we cannot rely on $CLAUDE_PLUGIN_ROOT here.
+: "${STATUSLINE_ROOT:=$(cd "$DIR/.." && pwd)}"
+export STATUSLINE_ROOT
 # shellcheck source=/dev/null
 . "$DIR/lib-settings.sh"
 command -v jq >/dev/null 2>&1 || { echo "ERROR: jq not found — install jq first."; exit 1; }
