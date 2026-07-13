@@ -35,6 +35,36 @@ assert_contains "git" "$out" "ascii: branch label"
 out=$(PATH= /bin/sh "$REND" </dev/null)
 assert_contains "jq not found" "$out" "no-jq: prints hint"
 
+echo "== lib-settings =="
+TMP=$(mktemp -d)
+export STATUSLINE_SETTINGS="$TMP/settings.json"
+export STATUSLINE_DATA="$TMP/data"
+export STATUSLINE_ROOT="/opt/plugins/statusline"
+# shellcheck source=/dev/null
+. "$ROOT/scripts/lib-settings.sh"
+
+assert_equals 'STATUSLINE_ICONS=nerd "/opt/plugins/statusline/scripts/statusline.sh"' \
+  "$(build_command "$(plugin_root)" nerd)" "build_command formats nerd"
+
+write_statusline_command 'CMD_A'
+assert_equals "CMD_A" "$(read_statusline_command)" "write/read roundtrip"
+assert_equals "command" "$(jq -r '.statusLine.type' "$STATUSLINE_SETTINGS")" "write sets type=command"
+
+owned_write "CMD_A" "ascii"
+assert_equals "CMD_A" "$(owned_get_command)" "owned command recorded"
+assert_equals "ascii" "$(owned_get_icons)" "owned icons recorded"
+
+backup_settings
+remove_statusline
+assert_equals "" "$(read_statusline_command)" "remove_statusline clears entry"
+restore_settings_backup
+assert_equals "CMD_A" "$(read_statusline_command)" "restore brings back entry"
+
+owned_clear
+assert_equals "nerd" "$(owned_get_icons)" "owned_get_icons defaults to nerd after clear"
+rm -rf "$TMP"
+unset STATUSLINE_SETTINGS STATUSLINE_DATA STATUSLINE_ROOT
+
 echo
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

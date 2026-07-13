@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Shared helpers: read/patch ~/.claude/settings.json and track whether THIS
+# plugin owns the current statusLine entry. Source this file; do not execute.
+# Test overrides: STATUSLINE_SETTINGS, STATUSLINE_DATA, STATUSLINE_ROOT.
+
+settings_path() { printf '%s' "${STATUSLINE_SETTINGS:-$HOME/.claude/settings.json}"; }
+owned_path()    { printf '%s' "${STATUSLINE_DATA:-$CLAUDE_PLUGIN_DATA}/owned.json"; }
+plugin_root()   { printf '%s' "${STATUSLINE_ROOT:-$CLAUDE_PLUGIN_ROOT}"; }
+
+build_command() {
+  # $1 root, $2 icons(nerd|ascii)
+  printf 'STATUSLINE_ICONS=%s "%s/scripts/statusline.sh"' "${2:-nerd}" "$1"
+}
+
+read_statusline_command() {
+  _sp=$(settings_path)
+  [ -f "$_sp" ] || return 0
+  jq -r '.statusLine.command // empty' "$_sp" 2>/dev/null
+}
+
+write_statusline_command() {
+  _sp=$(settings_path)
+  mkdir -p "$(dirname "$_sp")"
+  [ -f "$_sp" ] || printf '{}\n' > "$_sp"
+  _tmp="${_sp}.tmp.$$"
+  jq --arg cmd "$1" '.statusLine = {type:"command", command:$cmd}' "$_sp" > "$_tmp" && mv "$_tmp" "$_sp"
+}
+
+remove_statusline() {
+  _sp=$(settings_path)
+  [ -f "$_sp" ] || return 0
+  _tmp="${_sp}.tmp.$$"
+  jq 'del(.statusLine)' "$_sp" > "$_tmp" && mv "$_tmp" "$_sp"
+}
+
+backup_settings() {
+  _sp=$(settings_path)
+  [ -f "$_sp" ] && cp "$_sp" "${_sp}.bak"
+  return 0
+}
+
+restore_settings_backup() {
+  _sp=$(settings_path)
+  [ -f "${_sp}.bak" ] && mv "${_sp}.bak" "$_sp"
+  return 0
+}
+
+owned_get_command() {
+  _op=$(owned_path)
+  [ -f "$_op" ] || return 0
+  jq -r '.command // empty' "$_op" 2>/dev/null
+}
+
+owned_get_icons() {
+  _op=$(owned_path)
+  if [ ! -f "$_op" ]; then printf 'nerd'; return 0; fi
+  _i=$(jq -r '.icons // empty' "$_op" 2>/dev/null)
+  if [ -n "$_i" ]; then printf '%s' "$_i"; else printf 'nerd'; fi
+}
+
+owned_write() {
+  _op=$(owned_path)
+  mkdir -p "$(dirname "$_op")"
+  jq -n --arg cmd "$1" --arg icons "$2" '{command:$cmd, icons:$icons}' > "$_op"
+}
+
+owned_clear() {
+  rm -f "$(owned_path)"
+}
