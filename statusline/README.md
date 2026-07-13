@@ -2,19 +2,21 @@
 
 A polished Claude Code statusline: current directory, git branch (with dirty marker),
 model, reasoning effort, an 8-segment context-window bar, and a 5-hour rate-limit bar
-with reset time. Nerd Font icons by default, with an ASCII fallback.
+with reset time, rendered with Nerd Font icons.
 
 ## Requirements
 
-- `jq` (required). Without it the statusline prints a one-line hint instead of rendering.
-- A Nerd Font in your terminal for the default icons — or use `--ascii`.
+- **A Nerd Font** in your terminal — required for the icons. Without one, the icon
+  glyphs render as tofu (□) boxes. Install one from [nerdfonts.com](https://www.nerdfonts.com)
+  and set it as your terminal font.
+- `jq` — required. Without it the statusline prints a one-line hint instead of rendering.
 
 ## Install
 
 ```
 /plugin marketplace add Jo-Jee/claude-plugins
 /plugin install statusline@jojee-tools
-/statusline-setup           # or: /statusline-setup --ascii
+/statusline-setup
 ```
 
 `/statusline-setup` writes a `statusLine` entry into `~/.claude/settings.json`. It never

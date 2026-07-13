@@ -9,8 +9,7 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 
 command -v jq >/dev/null 2>&1 || exit 0
 
-icons=$(owned_get_icons)
-computed=$(build_command "$(plugin_root)" "$icons")
+computed=$(build_command "$(plugin_root)")
 current=$(read_statusline_command)
 owned=$(owned_get_command)
 
@@ -21,6 +20,6 @@ if [ "$current" = "$computed" ]; then exit 0; fi
 # Ours but stale (plugin path changed after an update) -> re-pin.
 if [ -n "$owned" ] && [ "$current" = "$owned" ]; then
   write_statusline_command "$computed"
-  owned_write "$computed" "$icons"
+  owned_write "$computed"
 fi
 exit 0

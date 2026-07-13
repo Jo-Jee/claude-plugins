@@ -1,7 +1,7 @@
 #!/bin/sh
 # Claude Code statusline renderer. Reads session JSON on stdin, prints the
 # statusline to stdout. Pure formatter — no side effects.
-# Icons: STATUSLINE_ICONS=nerd (default, needs a Nerd Font) | ascii (fallback).
+# Requires a Nerd Font in the terminal for the icons.
 
 if ! command -v jq >/dev/null 2>&1; then
   printf '%s\n' "⚠ statusline: jq not found — install jq"
@@ -13,11 +13,7 @@ input=$(cat)
 esc=$(printf '\033')
 red="${esc}[31m"; green="${esc}[32m"; yellow="${esc}[33m"; magenta="${esc}[35m"; cyan="${esc}[36m"; reset="${esc}[0m"
 
-if [ "${STATUSLINE_ICONS:-nerd}" = "ascii" ]; then
-  icon_dir="▸"; icon_model="»"; icon_effort="fx"; icon_bolt=""; icon_ctx="ctx"; icon_branch="git"
-else
-  icon_dir="󰉋"; icon_model="󰚩"; icon_effort="󰊚"; icon_bolt="󱐋"; icon_ctx="󰭹"; icon_branch="󰘬"
-fi
+icon_dir="󰉋"; icon_model="󰚩"; icon_effort="󰊚"; icon_bolt="󱐋"; icon_ctx="󰭹"; icon_branch="󰘬"
 
 cwd=$(echo "$input" | jq -r '.cwd // .workspace.current_dir // ""')
 model=$(echo "$input" | jq -r '.model.display_name // ""')
