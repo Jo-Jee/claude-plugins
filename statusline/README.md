@@ -16,10 +16,10 @@ with reset time, rendered with Nerd Font icons.
 ```
 /plugin marketplace add Jo-Jee/claude-plugins
 /plugin install statusline@jojee-tools
-/statusline-setup
+/statusline:setup
 ```
 
-`/statusline-setup` writes a `statusLine` entry into `~/.claude/settings.json`. It never
+`/statusline:setup` writes a `statusLine` entry into `~/.claude/settings.json`. It never
 overwrites an existing statusline without asking (your original is backed up to
 `settings.json.bak`). A SessionStart hook re-pins the path automatically after plugin
 updates. The statusline appears in new sessions.
@@ -27,11 +27,11 @@ updates. The statusline appears in new sessions.
 ## Uninstall
 
 ```
-/statusline-uninstall       # run this FIRST — removes our settings.json entry
+/statusline:uninstall       # run this FIRST — removes our settings.json entry
 /plugin uninstall statusline@jojee-tools
 ```
 
-`/statusline-uninstall` removes the entry only if this plugin owns it, restoring any
+`/statusline:uninstall` removes the entry only if this plugin owns it, restoring any
 statusline it previously replaced.
 
 ## Notes

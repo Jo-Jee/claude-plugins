@@ -4,8 +4,12 @@
 # Test overrides: STATUSLINE_SETTINGS, STATUSLINE_DATA, STATUSLINE_ROOT.
 
 settings_path() { printf '%s' "${STATUSLINE_SETTINGS:-$HOME/.claude/settings.json}"; }
-owned_path()    { printf '%s' "${STATUSLINE_DATA:-$CLAUDE_PLUGIN_DATA}/owned.json"; }
-plugin_root()   { printf '%s' "${STATUSLINE_ROOT:-$CLAUDE_PLUGIN_ROOT}"; }
+# CLAUDE_PLUGIN_DATA/ROOT are not exported into a slash command's shell, so we
+# never dereference them bare (set -u would abort). owned.json lives in a stable
+# location independent of invocation context; the plugin root is supplied by the
+# caller (setup.sh/sync.sh export STATUSLINE_ROOT from their own path).
+owned_path()    { printf '%s' "${STATUSLINE_DATA:-$HOME/.claude/statusline}/owned.json"; }
+plugin_root()   { printf '%s' "${STATUSLINE_ROOT:-${CLAUDE_PLUGIN_ROOT:-}}"; }
 
 build_command() {
   # $1 root

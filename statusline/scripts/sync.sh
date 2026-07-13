@@ -4,6 +4,10 @@
 # statusLine when none exists; never overwrites a foreign one.
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
+# Derive the plugin root from this script's own location rather than relying on
+# $CLAUDE_PLUGIN_ROOT (not always exported; set -u would abort on it).
+: "${STATUSLINE_ROOT:=$(cd "$DIR/.." && pwd)}"
+export STATUSLINE_ROOT
 # shellcheck source=/dev/null
 . "$DIR/lib-settings.sh"
 
