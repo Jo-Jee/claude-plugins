@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
-# Shared helpers: read/patch ~/.claude/settings.json and track whether THIS
+# Shared helpers: read/patch the Claude Code settings.json and track whether THIS
 # plugin owns the current statusLine entry. Source this file; do not execute.
 # Test overrides: STATUSLINE_SETTINGS, STATUSLINE_DATA, STATUSLINE_ROOT.
 
-settings_path() { printf '%s' "${STATUSLINE_SETTINGS:-$HOME/.claude/settings.json}"; }
+# Claude Code's config dir is relocatable via CLAUDE_CONFIG_DIR (default ~/.claude);
+# settings.json and our owned.json must live under whichever dir is in effect.
+config_dir()    { printf '%s' "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"; }
+settings_path() { printf '%s' "${STATUSLINE_SETTINGS:-$(config_dir)/settings.json}"; }
 # CLAUDE_PLUGIN_DATA/ROOT are not exported into a slash command's shell, so we
-# never dereference them bare (set -u would abort). owned.json lives in a stable
-# location independent of invocation context; the plugin root is supplied by the
-# caller (setup.sh/sync.sh export STATUSLINE_ROOT from their own path).
-owned_path()    { printf '%s' "${STATUSLINE_DATA:-$HOME/.claude/statusline}/owned.json"; }
+# never dereference them bare (set -u would abort). owned.json lives beside
+# settings.json under the config dir; the plugin root is supplied by the caller
+# (setup.sh/sync.sh export STATUSLINE_ROOT from their own path).
+owned_path()    { printf '%s' "${STATUSLINE_DATA:-$(config_dir)/statusline}/owned.json"; }
 plugin_root()   { printf '%s' "${STATUSLINE_ROOT:-${CLAUDE_PLUGIN_ROOT:-}}"; }
 
 build_command() {

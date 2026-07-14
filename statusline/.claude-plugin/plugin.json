@@ -1,6 +1,6 @@
 {
   "name": "statusline",
   "description": "A polished Claude Code statusline: cwd, git branch, model, reasoning effort, context-window and 5h rate-limit bars, with Nerd Font icons.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": { "name": "Jo-Jee", "email": "jojee.dev@gmail.com" }
 }

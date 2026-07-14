@@ -112,6 +112,16 @@ assert_contains "statusline/scripts/statusline.sh" "$(jq -r '.statusLine.command
   "setup: derives plugin root from script location"
 rm -rf "$TMP"
 
+# Regression: honor CLAUDE_CONFIG_DIR for settings.json and owned.json location.
+TMP=$(mktemp -d)
+env -u STATUSLINE_SETTINGS -u STATUSLINE_DATA -u CLAUDE_PLUGIN_ROOT -u CLAUDE_PLUGIN_DATA \
+  CLAUDE_CONFIG_DIR="$TMP/cfg" STATUSLINE_ROOT="/opt/plugins/statusline" bash "$S" install >/dev/null 2>&1
+assert_equals '"/opt/plugins/statusline/scripts/statusline.sh"' \
+  "$(jq -r '.statusLine.command' "$TMP/cfg/settings.json" 2>/dev/null)" \
+  "setup: writes to \$CLAUDE_CONFIG_DIR/settings.json"
+if [ -f "$TMP/cfg/statusline/owned.json" ]; then ok "setup: owned.json under \$CLAUDE_CONFIG_DIR"; else bad "setup: owned.json under \$CLAUDE_CONFIG_DIR"; fi
+rm -rf "$TMP"
+
 # install onto empty
 TMP=$(mktemp -d); SET="$TMP/settings.json"; DATA="$TMP/data"; RT="/opt/plugins/statusline"
 printf '{}\n' > "$SET"
