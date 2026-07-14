@@ -19,10 +19,11 @@ with reset time, rendered with Nerd Font icons.
 /statusline:setup
 ```
 
-`/statusline:setup` writes a `statusLine` entry into `~/.claude/settings.json`. It never
-overwrites an existing statusline without asking (your original is backed up to
-`settings.json.bak`). A SessionStart hook re-pins the path automatically after plugin
-updates. The statusline appears in new sessions.
+`/statusline:setup` writes a `statusLine` entry into your Claude Code `settings.json`
+(under `$CLAUDE_CONFIG_DIR` if set, otherwise `~/.claude`). It never overwrites an
+existing statusline without asking (your original is backed up to `settings.json.bak`).
+A SessionStart hook re-pins the path automatically after plugin updates. The statusline
+appears in new sessions.
 
 ## Uninstall
 
