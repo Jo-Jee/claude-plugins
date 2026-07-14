@@ -2,7 +2,7 @@
 title: english-coach (plugin)
 type: entity
 created: 2026-07-13
-updated: 2026-07-13
+updated: 2026-07-14
 sources: [raw/notes/2026-07-13-english-coach-training-mode-design.md]
 tags: [plugin, english-coach]
 ---
@@ -33,8 +33,9 @@ tool and, per the [[english-coach-training-mode-design]] spec (version bump 1.0.
 
 ## Command naming rule
 
-The plugin name `english-coach` already namespaces its commands
-(`/english-coach:<name>`), so command **filenames must not repeat the prefix**:
+This plugin applies the general [[plugin-command-naming]] rule: the plugin name
+`english-coach` already namespaces its commands (`/english-coach:<name>`), so command
+**filenames must not repeat the prefix**:
 
 - `commands/english-coach-stats.md` → renamed to `commands/stats.md`
   (still invoked as `/english-coach:stats`; body/behavior unchanged).
@@ -59,6 +60,7 @@ paths are env-overridable via `CHECK_ENGLISH_*` — see [[english-coach-testing]
 
 ## See Also
 - [[emma]]
+- [[plugin-command-naming]]
 - [[training-mode-session-lifecycle]]
 - [[english-coach-memory-model]]
 - [[english-coach-training-mode-design]]

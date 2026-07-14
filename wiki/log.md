@@ -7,3 +7,7 @@
 ## [2026-07-13] ingest | english-coach Training Mode — Implementation Plan
 - 생성: sources/english-coach-training-mode-plan.md, concepts/english-coach-testing.md
 - 수정: entities/english-coach.md, entities/emma.md, concepts/training-mode-session-lifecycle.md, concepts/english-coach-memory-model.md
+
+## [2026-07-14] ingest | Claude Code Plugin Command Naming Convention
+- 생성: sources/plugin-command-naming-convention.md, concepts/plugin-command-naming.md
+- 수정: entities/english-coach.md
