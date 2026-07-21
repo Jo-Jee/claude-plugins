@@ -10,7 +10,7 @@ from wiki_tools import cmd_init, cmd_log_append
 class TestLogAppend(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
 
     def test_appends_ingest_entry(self):
         cmd_log_append(self.wiki_path, 'ingest', 'Project Overview',

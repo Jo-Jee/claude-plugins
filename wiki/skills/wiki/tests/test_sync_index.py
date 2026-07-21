@@ -11,7 +11,7 @@ from wiki_tools import cmd_init, cmd_create_page, cmd_sync_index
 class TestSyncIndexAdd(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
         cmd_create_page(self.wiki_path, 'entity', 'foo', title='Foo Tool')
 
     def test_adds_entry_to_correct_section(self):
@@ -51,7 +51,7 @@ class TestSyncIndexAdd(WikiTestCase, unittest.TestCase):
 class TestSyncIndexRemove(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
         cmd_create_page(self.wiki_path, 'entity', 'foo', title='Foo')
         cmd_sync_index(self.wiki_path, add='entities/foo.md', summary='A foo')
 
@@ -64,7 +64,7 @@ class TestSyncIndexRemove(WikiTestCase, unittest.TestCase):
 class TestSyncIndexCheck(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
 
     def test_detects_file_not_in_index(self):
         cmd_create_page(self.wiki_path, 'entity', 'orphan', title='Orphan')

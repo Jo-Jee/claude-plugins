@@ -11,7 +11,7 @@ from wiki_tools import (cmd_init, cmd_create_page, cmd_validate_frontmatter,
 class TestValidateFrontmatter(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
 
     def test_valid_page_passes(self):
         cmd_create_page(self.wiki_path, 'entity', 'ok', title='OK')
@@ -52,7 +52,7 @@ class TestCheckRaw(WikiTestCase, unittest.TestCase):
         subprocess.run(['git', 'init'], cwd=self.tmpdir, capture_output=True)
         subprocess.run(['git', 'config', 'user.email', 'test@test.com'], cwd=self.tmpdir, capture_output=True)
         subprocess.run(['git', 'config', 'user.name', 'Test'], cwd=self.tmpdir, capture_output=True)
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
         subprocess.run(['git', 'add', '.'], cwd=self.tmpdir, capture_output=True)
         subprocess.run(['git', 'commit', '-m', 'init'], cwd=self.tmpdir, capture_output=True)
 
@@ -74,7 +74,7 @@ class TestCheckRaw(WikiTestCase, unittest.TestCase):
 class TestLintLinks(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
 
     def test_detects_broken_link(self):
         path = os.path.join(self.wiki_path, 'entities', 'a.md')

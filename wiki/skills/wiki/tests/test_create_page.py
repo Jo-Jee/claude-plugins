@@ -10,7 +10,7 @@ from wiki_tools import cmd_init, cmd_create_page, cmd_update_frontmatter, parse_
 class TestCreatePage(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
 
     def test_creates_entity_page(self):
         cmd_create_page(self.wiki_path, 'entity', 'centrifugo', title='Centrifugo')
@@ -49,7 +49,7 @@ class TestCreatePage(WikiTestCase, unittest.TestCase):
 class TestUpdateFrontmatter(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
         cmd_create_page(self.wiki_path, 'entity', 'test', title='Test')
         self.page_path = os.path.join(self.wiki_path, 'entities', 'test.md')
 
