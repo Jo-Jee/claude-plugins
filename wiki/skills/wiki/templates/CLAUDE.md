@@ -6,10 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working in this
 
 {{PROJECT_NAME}} — A knowledge base based on Karpathy's LLM Wiki pattern. The LLM reads original sources and incrementally builds and maintains a structured Markdown wiki. Unlike RAG, which re-extracts information every time, the goal here is to compile and accumulate knowledge.
 
+This wiki is a standalone repository linked into the project's Claude config dir at `$CLAUDE_CONFIG_DIR/wiki`, so its catalog is visible in every session.
+
 ## Directory Structure
 
 ```
-wiki/
+./                         # this repo's root IS the wiki
 ├── CLAUDE.md              # Schema — wiki rules & workflows
 ├── index.md               # Catalog of all wiki pages
 ├── log.md                 # Chronological activity log (append-only)
@@ -144,11 +146,12 @@ Chronological, append-only record. Use a consistent, grep-friendly format.
 
 ## Rules
 
-1. **Never modify files under `raw/`.** Original sources are immutable.
-2. **Every wiki page must include frontmatter.**
-3. **When new information conflicts with existing content, do not delete — keep both side by side.** Mark with a `> [!conflict]` callout.
-4. **Keep `index.md` up to date whenever the wiki changes.**
-5. **`log.md` is append-only.** Do not edit existing entries.
-6. **Use cross-references aggressively.** Connect related pages with `[[]]`.
-7. **The user curates; the LLM organizes.** Humans choose sources and direction; the LLM handles summaries, cross-references, and cleanup.
-8. **When ingesting sources, proceed step by step with user confirmation.** Never bulk-process automatically.
+1. **All project documentation lives in this wiki.** Notes, designs, requirements, and references belong here — never scattered across the codebase. Save new raw material under `raw/notes/` (or the appropriate `raw/` subdir).
+2. **Never modify files under `raw/`.** Original sources are immutable.
+3. **Every wiki page must include frontmatter.**
+4. **When new information conflicts with existing content, do not delete — keep both side by side.** Mark with a `> [!conflict]` callout.
+5. **Keep `index.md` up to date whenever the wiki changes.**
+6. **`log.md` is append-only.** Do not edit existing entries.
+7. **Use cross-references aggressively.** Connect related pages with `[[]]`.
+8. **The user curates; the LLM organizes.** Humans choose sources and direction; the LLM handles summaries, cross-references, and cleanup.
+9. **When ingesting sources, proceed step by step with user confirmation.** Never bulk-process automatically.
