@@ -18,6 +18,12 @@
       "source": "./statusline",
       "category": "productivity",
       "description": "A polished Claude Code statusline with context-window and 5h rate-limit bars, git/model/effort segments and Nerd Font icons. Installs via /statusline-setup."
+    },
+    {
+      "name": "wiki",
+      "source": "./wiki",
+      "category": "productivity",
+      "description": "Per-project LLM Wiki: a standalone wiki repo linked via $CLAUDE_CONFIG_DIR/wiki and surfaced in every session; init/ingest/query/lint/status."
     }
   ]
 }
