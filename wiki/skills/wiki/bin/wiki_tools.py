@@ -142,6 +142,42 @@ def cmd_link(target):
     print("Linked {} -> {}".format(link_path, target_abs))
 
 
+POINTER_START = '<!-- wiki-plugin:start -->'
+POINTER_END = '<!-- wiki-plugin:end -->'
+POINTER_BLOCK = (
+    POINTER_START + '\n'
+    '## Wiki\n'
+    "All project documentation follows the wiki's rules.\n"
+    'See `$CLAUDE_CONFIG_DIR/wiki/CLAUDE.md`. Every document must live in the wiki.\n'
+    + POINTER_END + '\n'
+)
+
+
+def cmd_ensure_root_pointer():
+    """Ensure exactly one wiki pointer block in <config_dir>/CLAUDE.md (idempotent)."""
+    config_dir = _config_dir()
+    os.makedirs(config_dir, exist_ok=True)
+    path = os.path.join(config_dir, 'CLAUDE.md')
+    existing = ''
+    if os.path.isfile(path):
+        with open(path, 'r', encoding='utf-8') as f:
+            existing = f.read()
+
+    if POINTER_START in existing and POINTER_END in existing:
+        pre = existing.split(POINTER_START)[0]
+        post = existing.split(POINTER_END, 1)[1]
+        new = pre + POINTER_BLOCK + post
+    elif existing == '':
+        new = POINTER_BLOCK
+    else:
+        sep = '' if existing.endswith('\n') else '\n'
+        new = existing + sep + '\n' + POINTER_BLOCK
+
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(new)
+    print("Root pointer ensured in {}".format(path))
+
+
 # ── Obsidian defaults ───────────────────────────────────────────────────
 
 OBSIDIAN_DEFAULTS = {
@@ -829,6 +865,10 @@ def main():
     p_link = sub.add_parser('link', help='Symlink $CLAUDE_CONFIG_DIR/wiki to a wiki repo')
     p_link.add_argument('target', help='Wiki repo root directory to link')
 
+    # ensure-root-pointer
+    sub.add_parser('ensure-root-pointer',
+                   help='Ensure the wiki pointer block in $CLAUDE_CONFIG_DIR/CLAUDE.md')
+
     # create-page
     p_cp = sub.add_parser('create-page', help='Create wiki page skeleton')
     p_cp.add_argument('wiki_path')
@@ -899,6 +939,8 @@ def main():
         cmd_init(args.target)
     elif args.command == 'link':
         cmd_link(args.target)
+    elif args.command == 'ensure-root-pointer':
+        cmd_ensure_root_pointer()
     elif args.command == 'create-page':
         sources = [s.strip() for s in args.sources.split(',') if s.strip()] if args.sources else []
         tags = [t.strip() for t in args.tags.split(',') if t.strip()] if args.tags else []
