@@ -130,11 +130,11 @@ OBSIDIAN_DEFAULTS = {
 # ── Commands ────────────────────────────────────────────────────────────
 
 
-def cmd_init(project_root, template_dir=None):
-    """Initialize wiki directory structure."""
-    wiki_path = os.path.join(project_root, 'wiki')
-    if os.path.exists(wiki_path):
-        print("Error: wiki/ already exists at {}".format(wiki_path), file=sys.stderr)
+def cmd_init(wiki_path, template_dir=None):
+    """Scaffold the wiki structure directly at wiki_path (standalone repo root)."""
+    index_path = os.path.join(wiki_path, 'index.md')
+    if os.path.exists(index_path):
+        print("Error: already a wiki (index.md exists) at {}".format(wiki_path), file=sys.stderr)
         sys.exit(2)
 
     # Create directories
@@ -157,7 +157,7 @@ def cmd_init(project_root, template_dir=None):
         "## Analyses\n\n"
         "## Comparisons\n"
     )
-    _write(os.path.join(wiki_path, 'index.md'), index_content)
+    _write(index_path, index_content)
 
     # Create log.md with init entry
     today = date.today().isoformat()
@@ -797,8 +797,8 @@ def main():
     sub = parser.add_subparsers(dest='command')
 
     # init
-    p_init = sub.add_parser('init', help='Initialize wiki in project')
-    p_init.add_argument('project_root', help='Project root directory')
+    p_init = sub.add_parser('init', help='Initialize a standalone wiki repo at TARGET')
+    p_init.add_argument('target', help='Wiki repo root directory (the wiki lives here directly)')
 
     # create-page
     p_cp = sub.add_parser('create-page', help='Create wiki page skeleton')
@@ -867,7 +867,7 @@ def main():
         sys.exit(2)
 
     if args.command == 'init':
-        cmd_init(args.project_root)
+        cmd_init(args.target)
     elif args.command == 'create-page':
         sources = [s.strip() for s in args.sources.split(',') if s.strip()] if args.sources else []
         tags = [t.strip() for t in args.tags.split(',') if t.strip()] if args.tags else []

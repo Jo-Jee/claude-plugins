@@ -11,7 +11,7 @@ from wiki_tools import (cmd_init, cmd_create_page, cmd_delete_page,
 class TestDeletePage(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
 
     def test_delete_existing_page(self):
         cmd_create_page(self.wiki_path, 'entity', 'foo', title='Foo')
@@ -52,7 +52,7 @@ class TestDeletePage(WikiTestCase, unittest.TestCase):
 class TestListRaw(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
 
     def test_list_empty_raw(self):
         result = cmd_list_raw(self.wiki_path)
@@ -85,7 +85,7 @@ class TestListRaw(WikiTestCase, unittest.TestCase):
 class TestStatus(WikiTestCase, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        cmd_init(self.tmpdir, template_dir=self._template_dir())
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
 
     def test_status_empty_wiki(self):
         status = cmd_status(self.wiki_path)
