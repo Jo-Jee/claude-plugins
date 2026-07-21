@@ -858,12 +858,15 @@ def main():
     sub = parser.add_subparsers(dest='command')
 
     # init
-    p_init = sub.add_parser('init', help='Initialize a standalone wiki repo at TARGET')
-    p_init.add_argument('target', help='Wiki repo root directory (the wiki lives here directly)')
+    p_init = sub.add_parser('init', help='Initialize a standalone wiki repo (defaults to the current directory)')
+    p_init.add_argument('target', nargs='?', default=None,
+                        help='Wiki repo root directory (the wiki lives here directly); '
+                             'defaults to the current directory')
 
     # link
-    p_link = sub.add_parser('link', help='Symlink $CLAUDE_CONFIG_DIR/wiki to a wiki repo')
-    p_link.add_argument('target', help='Wiki repo root directory to link')
+    p_link = sub.add_parser('link', help='Symlink $CLAUDE_CONFIG_DIR/wiki to a wiki repo (defaults to the current directory)')
+    p_link.add_argument('target', nargs='?', default=None,
+                        help='Wiki repo root directory to link; defaults to the current directory')
 
     # ensure-root-pointer
     sub.add_parser('ensure-root-pointer',
@@ -936,9 +939,9 @@ def main():
         sys.exit(2)
 
     if args.command == 'init':
-        cmd_init(args.target)
+        cmd_init(args.target or os.getcwd())
     elif args.command == 'link':
-        cmd_link(args.target)
+        cmd_link(args.target or os.getcwd())
     elif args.command == 'ensure-root-pointer':
         cmd_ensure_root_pointer()
     elif args.command == 'create-page':
