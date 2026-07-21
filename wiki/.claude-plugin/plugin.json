@@ -1,0 +1,6 @@
+{
+  "name": "wiki",
+  "description": "Per-project LLM Wiki: a standalone wiki repo linked via $CLAUDE_CONFIG_DIR/wiki and surfaced every session; init/ingest/query/lint/status.",
+  "version": "1.0.0",
+  "author": { "name": "Jo-Jee", "email": "jojee.dev@gmail.com" }
+}
