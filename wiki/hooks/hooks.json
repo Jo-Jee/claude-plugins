@@ -1,0 +1,25 @@
+{
+  "description": "Surfaces the linked project wiki's catalog at the start of every session.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/session_context.sh", "timeout": 10 }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/session_context.sh", "timeout": 10 }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/session_context.sh", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}
