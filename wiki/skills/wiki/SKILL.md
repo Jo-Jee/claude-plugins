@@ -24,9 +24,13 @@ Manages a per-project LLM Wiki. Based on Karpathy's LLM Wiki pattern.
 Python CLI path: `${CLAUDE_SKILL_DIR}/bin/wiki_tools.py`
 
 Wiki path resolution:
-1. Find the git root from cwd: `git rev-parse --show-toplevel`
-2. `{git_root}/wiki/` is the wiki path
-3. If `wiki/` does not exist → guide the user to run `/wiki init`
+1. The wiki is whatever `$CLAUDE_CONFIG_DIR/wiki` points to (default `~/.claude/wiki`):
+   ```bash
+   WIKI="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/wiki"
+   ```
+2. If `$WIKI` does not exist or is not a directory → the current project has no wiki
+   linked. Guide the user to run `/wiki init` (see the init guide).
+3. Otherwise use `$WIKI` as `<wiki_path>` for every subcommand below.
 
 ## Routing
 

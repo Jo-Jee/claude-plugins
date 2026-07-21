@@ -19,7 +19,7 @@ Fix any mismatches first.
 
 ### 2. Read the index
 
-Read `wiki/index.md` and find pages relevant to the question.
+Read the wiki's `index.md` (`$WIKI/index.md`, i.e. `<wiki_path>/index.md`) and find pages relevant to the question.
 
 ### 3. Synthesize an answer
 
