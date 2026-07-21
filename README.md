@@ -28,11 +28,27 @@ stays accurate.
 
 **Requires:** `jq` and a `claude` binary on `PATH`.
 
+### wiki
+A per-project LLM Wiki (Karpathy's LLM-Wiki pattern) managed as a **standalone repo**.
+- `/wiki init [path]` — scaffold a wiki repo, link it at `$CLAUDE_CONFIG_DIR/wiki`, and
+  add a delegating pointer to your root `CLAUDE.md`.
+- `/wiki ingest` — integrate a `raw/` source into wiki pages (subagent-driven).
+- `/wiki query <q>` — search the wiki and synthesize a cited answer.
+- `/wiki lint` — structural + semantic health check.
+- `/wiki status` — page counts, last activity, lint summary.
+
+A `SessionStart` hook injects the linked wiki's `index.md` into every session, so its
+catalog is always visible. All wiki rules live in the wiki's own `CLAUDE.md`; the root
+`CLAUDE.md` just delegates to it.
+
+**Requires:** `python3` and `jq` on `PATH`.
+
 ## Install
 
 ```
 /plugin marketplace add Jo-Jee/claude-plugins
 /plugin install english-coach@jojee-tools
+/plugin install wiki@jojee-tools
 /reload-plugins
 ```
 
