@@ -117,6 +117,31 @@ def _write(path, content):
         f.write(content)
 
 
+# ── Config-dir linking ───────────────────────────────────────────────────
+
+def _config_dir():
+    """Claude Code config dir; relocatable via CLAUDE_CONFIG_DIR (default ~/.claude)."""
+    return os.environ.get('CLAUDE_CONFIG_DIR') or os.path.join(os.path.expanduser('~'), '.claude')
+
+
+def cmd_link(target):
+    """Symlink <config_dir>/wiki -> abspath(target). Idempotent; refuses non-symlink."""
+    target_abs = os.path.abspath(target)
+    if not os.path.isdir(target_abs):
+        print("Error: target is not a directory: {}".format(target_abs), file=sys.stderr)
+        sys.exit(2)
+    config_dir = _config_dir()
+    os.makedirs(config_dir, exist_ok=True)
+    link_path = os.path.join(config_dir, 'wiki')
+    if os.path.islink(link_path):
+        os.unlink(link_path)
+    elif os.path.exists(link_path):
+        print("Error: {} exists and is not a symlink; refusing to replace".format(link_path), file=sys.stderr)
+        sys.exit(2)
+    os.symlink(target_abs, link_path)
+    print("Linked {} -> {}".format(link_path, target_abs))
+
+
 # ── Obsidian defaults ───────────────────────────────────────────────────
 
 OBSIDIAN_DEFAULTS = {
@@ -800,6 +825,10 @@ def main():
     p_init = sub.add_parser('init', help='Initialize a standalone wiki repo at TARGET')
     p_init.add_argument('target', help='Wiki repo root directory (the wiki lives here directly)')
 
+    # link
+    p_link = sub.add_parser('link', help='Symlink $CLAUDE_CONFIG_DIR/wiki to a wiki repo')
+    p_link.add_argument('target', help='Wiki repo root directory to link')
+
     # create-page
     p_cp = sub.add_parser('create-page', help='Create wiki page skeleton')
     p_cp.add_argument('wiki_path')
@@ -868,6 +897,8 @@ def main():
 
     if args.command == 'init':
         cmd_init(args.target)
+    elif args.command == 'link':
+        cmd_link(args.target)
     elif args.command == 'create-page':
         sources = [s.strip() for s in args.sources.split(',') if s.strip()] if args.sources else []
         tags = [t.strip() for t in args.tags.split(',') if t.strip()] if args.tags else []
