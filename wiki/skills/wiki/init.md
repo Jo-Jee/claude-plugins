@@ -18,6 +18,9 @@ path as `$ARGUMENTS` to target a different directory.)
    ```bash
    python3 ${CLAUDE_SKILL_DIR}/bin/wiki_tools.py init
    ```
+   If the directory is not already under git control, this also runs `git init`
+   so the wiki starts as its own standalone repository. When the wiki lives
+   inside an existing repo, no nested repo is created.
 
 2. Link it so every session can see it:
    ```bash

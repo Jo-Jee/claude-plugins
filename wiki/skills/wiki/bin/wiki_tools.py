@@ -191,6 +191,37 @@ OBSIDIAN_DEFAULTS = {
 # ── Commands ────────────────────────────────────────────────────────────
 
 
+def _ensure_git_repo(wiki_path):
+    """Initialize a git repo at wiki_path unless it is already under git control.
+
+    The wiki is meant to be a standalone repository, but it may also live as a
+    subdirectory of a larger repo. We only run `git init` when wiki_path is not
+    inside any git work tree. Returns True if `git init` was run, False if it was
+    already tracked or git is unavailable.
+    """
+    try:
+        result = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True, text=True, cwd=wiki_path,
+        )
+    except FileNotFoundError:
+        print("Warning: git not found, skipping git init.")
+        return False
+
+    if result.returncode == 0:
+        return False  # already inside a git repository
+
+    init_result = subprocess.run(
+        ['git', 'init'],
+        capture_output=True, text=True, cwd=wiki_path,
+    )
+    if init_result.returncode != 0:
+        print("Warning: git init failed: {}".format(init_result.stderr.strip()))
+        return False
+    print("Initialized git repository at {}".format(wiki_path))
+    return True
+
+
 def cmd_init(wiki_path, template_dir=None):
     """Scaffold the wiki structure directly at wiki_path (standalone repo root)."""
     index_path = os.path.join(wiki_path, 'index.md')
@@ -201,6 +232,9 @@ def cmd_init(wiki_path, template_dir=None):
     # Create directories
     for d in WIKI_DIRS:
         os.makedirs(os.path.join(wiki_path, d), exist_ok=True)
+
+    # Ensure the wiki is its own standalone git repository
+    _ensure_git_repo(wiki_path)
 
     # Copy CLAUDE.md template
     if template_dir is None:

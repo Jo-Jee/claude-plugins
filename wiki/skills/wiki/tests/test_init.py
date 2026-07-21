@@ -45,6 +45,27 @@ class TestInit(WikiTestCase, unittest.TestCase):
             cmd_init(self.wiki_path, template_dir=self._template_dir())
         self.assertEqual(cm.exception.code, 2)
 
+    def test_initializes_git_repo_when_not_tracked(self):
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
+        self.assertTrue(os.path.isdir(os.path.join(self.wiki_path, '.git')),
+                        'wiki should become its own git repository')
+
+    def test_does_not_nest_repo_inside_existing_repo(self):
+        import subprocess
+        # tmpdir is the parent of wiki_path; make it a repo so the wiki lives
+        # inside an existing work tree.
+        subprocess.run(['git', 'init'], cwd=self.tmpdir,
+                       capture_output=True, text=True, check=True)
+        cmd_init(self.wiki_path, template_dir=self._template_dir())
+        self.assertFalse(os.path.isdir(os.path.join(self.wiki_path, '.git')),
+                         'wiki should not create a nested repo inside an existing one')
+        result = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            cwd=self.wiki_path, capture_output=True, text=True,
+        )
+        self.assertEqual(os.path.realpath(result.stdout.strip()),
+                         os.path.realpath(self.tmpdir))
+
 
 if __name__ == '__main__':
     unittest.main()
